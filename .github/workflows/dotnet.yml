@@ -27,6 +27,5 @@ jobs:
       run: dotnet build -c Release --no-restore
     - name: Publish to private nuget repo
       run: |
-        env
-        dotnet nuget add source $NUGET_FEED_URL -u "-" -p ${{ secrets.TSP_NUGET_PAT }} --store-password-in-clear-text --valid-authentication-types "basic" 
+        dotnet nuget add source ${{ secrets.NUGET_FEED_URL }} -u "-" -p ${{ secrets.TSP_NUGET_PAT }} --store-password-in-clear-text --valid-authentication-types "basic" 
         dotnet nuget push --source "tilde-services-platform" --api-key az "Tilde.Translation/bin/Release/Tilde.Translation.*.nupkg" 
