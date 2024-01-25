@@ -312,9 +312,9 @@ namespace Tilde.Translation
         /// </summary>
         /// <param name="handle"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns><see cref="Internal.Models.Document.Task"/> which can be used to check if translation was successfull</returns>
+        /// <returns><see cref="DocumentStatus"/> which can be used to check if translation was successfull</returns>
         /// <exception cref="TildeException"></exception>
-        public async Task<Models.Document.DocumentStatus> TranslateDocumentStatusAsync(
+        public async Task<DocumentStatus> TranslateDocumentStatusAsync(
             DocumentHandle handle,
             CancellationToken cancellationToken = default)
         {
@@ -328,9 +328,9 @@ namespace Tilde.Translation
         /// </summary>
         /// <param name="handle"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns><see cref="Internal.Models.Document.Task"/> which can be used to check if translation was successfull</returns>
+        /// <returns><see cref="DocumentStatus"/> which can be used to check if translation was successfull</returns>
         /// <exception cref="TildeException"></exception>
-        public async Task<Models.Document.DocumentStatus> TranslateDocumentWaitUntilDoneAsync(
+        public async Task<DocumentStatus> TranslateDocumentWaitUntilDoneAsync(
             DocumentHandle handle,
             CancellationToken cancellationToken = default
         )
