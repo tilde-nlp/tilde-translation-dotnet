@@ -27,6 +27,8 @@ jobs:
       run: dotnet build -c Release --no-restore
     - name: Publish to private nuget repo
       run: |
-        dotnet nuget add source ${{ secrets.NUGET_FEED_URL }} -u "-" -p ${{ secrets.TSP_NUGET_PAT }} --store-password-in-clear-text --valid-authentication-types "basic" 
+        echo "$NUGET_FEED_URL"
+        echo "${{ secrets.TSP_NUGET_PAT }}" | cut -c -3
+        dotnet nuget add source $NUGET_FEED_URL -u "-" -p ${{ secrets.TSP_NUGET_PAT }} --store-password-in-clear-text --valid-authentication-types "basic" 
         dotnet nuget list source
-        dotnet nuget push "Tilde.Translation/bin/Release/Tilde.Translation.*.nupkg" --source ${{ secrets.NUGET_FEED_URL }} --api-key VSTS
+        dotnet nuget push "Tilde.Translation/bin/Release/Tilde.Translation.*.nupkg" --source $NUGET_FEED_URL --api-key VSTS
