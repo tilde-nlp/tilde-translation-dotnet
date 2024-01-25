@@ -1,6 +1,6 @@
 # Tilde translation .NET library
 
-[Tilde MT](https://tilde.com) is a translation platform for instant, fluent, and secure text, document. 
+[Tilde MT](https://tilde.com) is a translation platform for instant, fluent, and secure text, document translation. 
 
 This .NET library provides a robust and user-friendly interface for integrating machine translation capabilities into your .NET applications. Powered by advanced neural machine translation models, it enables seamless translation of text between multiple languages.
 
