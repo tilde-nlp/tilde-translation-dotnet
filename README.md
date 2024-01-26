@@ -30,7 +30,7 @@ using Tilde.Translation;
 using Tilde.Translation.Exceptions;
 
 var apiKey = "00000000-0000-0000-0000-000000000000"; 
-var translator = new Translator(authKey);
+var translator = new Translator(apiKey);
 ```
 
 When implementing this library in your application, please provide information about application where this library will be used:
@@ -87,6 +87,24 @@ Console.WriteLine(engines.First().SourceLanguages.First()); // "en"
 Console.WriteLine(engines.First().TargetLanguages.First()); // "lv"
 ```
 
+## Error handling
+
+All errors are derived from `TildeException` base exception. To catch errors use `TildeException` or derived specific exceptions.
+
+```c#
+try
+{
+    var translation = await translator.TranslateTextAsync("First sentence", "en", "lv");
+
+    Console.WriteLine(translation.DetectedLanguage);
+    Console.WriteLine(translation.Domain);
+    Console.WriteLine(translation.Translations[0].Translation);
+}
+catch (TildeException ex)
+{
+    Console.WriteLine(ex.Message);
+}
+```
 # Contributing
 We welcome contributions from the community! If you encounter issues, have suggestions, or want to add new features, please submit a pull request or open an issue on the GitHub repository.
 
