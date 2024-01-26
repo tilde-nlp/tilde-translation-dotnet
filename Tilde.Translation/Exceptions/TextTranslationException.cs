@@ -7,7 +7,7 @@ namespace Tilde.Translation.Exceptions
     /// <summary>
     /// Text translation failed
     /// </summary>
-    internal class TextTranslationException : TildeException
+    public sealed class TextTranslationException : TildeException
     {
         /// <summary>
         /// Error code from translation API which can be used to differentiate errors

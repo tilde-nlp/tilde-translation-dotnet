@@ -9,7 +9,7 @@ namespace Tilde.Translation.Exceptions
     /// <summary>
     /// Document translation failed with <see cref="TranslationStatus.Error"/>
     /// </summary>
-    internal class DocumentTranslationException : TildeException
+    public sealed class DocumentTranslationException : TildeException
     {
         /// <summary>
         /// <see cref="TranslationSubstatus"/> of document translation

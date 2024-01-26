@@ -9,7 +9,7 @@ namespace Tilde.Translation.Exceptions
     /// <summary>
     /// Document is still processing
     /// </summary>
-    internal class DocumentNotReadyException : TildeException
+    public sealed class DocumentNotReadyException : TildeException
     {
         public TranslationStatus Status { get; }
 
