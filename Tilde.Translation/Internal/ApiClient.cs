@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Tilde.Translation.Exceptions;
