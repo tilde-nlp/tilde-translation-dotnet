@@ -3,11 +3,11 @@
     <AssemblyTitle>Tilde.Translation</AssemblyTitle>
     <Description>Official dotnet library for the Tilde translation API</Description>
     <PackageTags>tilde;translation;translator;translate;api;i18n;language;</PackageTags>
-    <Version>1.0.1</Version>
-    <PackageVersion>1.0.2</PackageVersion>
-    <FileVersion>1.0.2.0</FileVersion>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <TargetFrameworks>net6.0;netstandard2.0;net462;</TargetFrameworks>
+    <Version>1.0.4</Version>
+    <PackageVersion>1.0.4</PackageVersion>
+    <FileVersion>1.0.4.0</FileVersion>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <TargetFrameworks>net6.0;net7.0;net8.0;netstandard2.0;net462;net472;net48;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
