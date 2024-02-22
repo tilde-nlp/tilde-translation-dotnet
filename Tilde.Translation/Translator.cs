@@ -4,7 +4,6 @@
 
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Tilde.Translation.Exceptions;
@@ -456,9 +455,8 @@ namespace Tilde.Translation
         /// <returns></returns>
         public static string Version()
         {
-            var version = Assembly.GetExecutingAssembly()
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                ?.InformationalVersion ?? "";
+            var version = VersionProvider.GetVersion();
+
             return version;
         }
 
