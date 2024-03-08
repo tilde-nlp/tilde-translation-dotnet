@@ -10,6 +10,11 @@ namespace Tilde.Translation
     public class AppInfo
     {
         /// <summary>
+        /// Application identifier. This will be sent as X-APP-ID header value for all requests
+        /// </summary>
+        public string? AppId { get; set; }
+
+        /// <summary>
         /// Application name where this library will be used
         /// </summary>
         public string? AppName { get; set; }

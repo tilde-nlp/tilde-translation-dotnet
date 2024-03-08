@@ -61,9 +61,9 @@ namespace Tilde.Translation
                 headers.Add("X-API-KEY", $"{parsedApiKey}");
             }
 
-            if (!headers.ContainsKey("X-APP-ID") && options.AppInfo != null)
+            if (!headers.ContainsKey("X-APP-ID") && options.AppInfo?.AppId != null)
             {
-                headers.Add("X-APP-ID", $"{options.AppInfo?.AppName}/{options.AppInfo?.AppVersion}");
+                headers.Add("X-APP-ID", options.AppInfo?.AppId);
             }
 
             _client = new ApiClient(new Uri(options.ServerUrl), options.ClientFactory, headers);
