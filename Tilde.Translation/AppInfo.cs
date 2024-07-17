@@ -23,5 +23,10 @@ namespace Tilde.Translation
         /// Version of application where this library will be used
         /// </summary>
         public string? AppVersion { get; set; }
+
+        /// <summary>
+        /// Host name which requests machine translation
+        /// </summary>
+        public string? ForwardedHost { get; set; }
     }
 }
