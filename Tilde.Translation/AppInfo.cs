@@ -23,5 +23,10 @@ namespace Tilde.Translation
         /// Version of application where this library will be used
         /// </summary>
         public string? AppVersion { get; set; }
+
+        /// <summary>
+		/// Domain of the website which is using web translation widget and requests machine translations
+		/// </summary>
+		public string? WebsiteDomain { get; set; }
     }
 }
