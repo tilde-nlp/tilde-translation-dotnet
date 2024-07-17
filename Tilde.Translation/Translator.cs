@@ -13,481 +13,486 @@ using Tilde.Translation.Models.Document;
 
 namespace Tilde.Translation
 {
-    /// <summary>
-    /// Translation client for Tilde MT api 
-    /// </summary>
-    public sealed class Translator : IDisposable
-    {
-        /// <summary>
-        /// Poll interval for document translation status while waiting for document translation to finish
-        /// </summary>
-        private readonly TimeSpan DocumentStatusWaitPollInterval = TimeSpan.FromSeconds(1);
+	/// <summary>
+	/// Translation client for Tilde MT api 
+	/// </summary>
+	public sealed class Translator : IDisposable
+	{
+		/// <summary>
+		/// Poll interval for document translation status while waiting for document translation to finish
+		/// </summary>
+		private readonly TimeSpan DocumentStatusWaitPollInterval = TimeSpan.FromSeconds(1);
 
-        /// <summary>
-        /// API client for making all API requests
-        /// </summary>
-        private readonly ApiClient _client;
+		/// <summary>
+		/// API client for making all API requests
+		/// </summary>
+		private readonly ApiClient _client;
 
-        /// <summary>
-        /// Initializes <see cref="Translator"/> client
-        /// </summary>
-        /// <param name="apiKey"></param>
-        /// <param name="options"></param>
-        /// <exception cref="ArgumentNullException">apiKey was not provided</exception>
-        /// <exception cref="ArgumentException">apiKey is not valid</exception>
-        public Translator(string apiKey, TranslatorOptions? options = null)
-        {
-            options ??= new TranslatorOptions();
+		/// <summary>
+		/// Initializes <see cref="Translator"/> client
+		/// </summary>
+		/// <param name="apiKey"></param>
+		/// <param name="options"></param>
+		/// <exception cref="ArgumentNullException">apiKey was not provided</exception>
+		/// <exception cref="ArgumentException">apiKey is not valid</exception>
+		public Translator(string apiKey, TranslatorOptions? options = null)
+		{
+			options ??= new TranslatorOptions();
 
-            if (apiKey == null)
-            {
-                throw new ArgumentNullException(nameof(apiKey));
-            }
+			if (apiKey == null)
+			{
+				throw new ArgumentNullException(nameof(apiKey));
+			}
 
-            if (!Guid.TryParse(apiKey, out var parsedApiKey))
-            {
-                throw new ArgumentException($"{nameof(apiKey)} is not valid API key");
-            }
+			if (!Guid.TryParse(apiKey, out var parsedApiKey))
+			{
+				throw new ArgumentException($"{nameof(apiKey)} is not valid API key");
+			}
 
-            var headers = new Dictionary<string, string?>(options.Headers, StringComparer.OrdinalIgnoreCase);
+			var headers = new Dictionary<string, string?>(options.Headers, StringComparer.OrdinalIgnoreCase);
 
-            if (!headers.ContainsKey("User-Agent"))
-            {
-                headers.Add("User-Agent", ConstructUserAgentString(options.AppInfo, options.SendPlatformInfo));
-            }
+			if (!headers.ContainsKey("User-Agent"))
+			{
+				headers.Add("User-Agent", ConstructUserAgentString(options.AppInfo, options.SendPlatformInfo));
+			}
 
-            if (!headers.ContainsKey("Authorization"))
-            {
-                headers.Add("X-API-KEY", $"{parsedApiKey}");
-            }
+			if (!headers.ContainsKey("Authorization"))
+			{
+				headers.Add("X-API-KEY", $"{parsedApiKey}");
+			}
 
-            if (!headers.ContainsKey("X-APP-ID") && options.AppInfo?.AppId != null)
-            {
-                headers.Add("X-APP-ID", options.AppInfo?.AppId);
-            }
+			if (!headers.ContainsKey("X-APP-ID") && options.AppInfo?.AppId != null)
+			{
+				headers.Add("X-APP-ID", options.AppInfo?.AppId);
+			}
 
-            _client = new ApiClient(new Uri(options.ServerUrl), options.ClientFactory, headers);
-        }
+			if (!string.IsNullOrEmpty(options.AppInfo?.WebsiteDomain))
+			{
+				headers.Add("Website-Domain", options.AppInfo?.WebsiteDomain);
+			}
 
-        /// <summary>
-        /// Translate texts 
-        /// </summary>
-        /// <param name="texts">Texts to translate. Must not be empty</param>
-        /// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
-        /// <param name="targetLanguageCode">Language code of target language</param>
-        /// <param name="domain">Translation domain</param>
-        /// <param name="options">Additional options for translation request</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="TildeException"></exception>
-        public async Task<Models.Text.Translation> TranslateTextAsync(
-              IEnumerable<string> texts,
-              string? sourceLanguageCode,
-              string targetLanguageCode,
-              string? domain = null,
-              TextTranslateOptions? options = null,
-              CancellationToken cancellationToken = default)
-        {
-            options ??= new();
+			_client = new ApiClient(new Uri(options.ServerUrl), options.ClientFactory, headers);
+		}
 
-            var emptyTexts = texts.Any(string.IsNullOrEmpty);
-            if (emptyTexts)
-            {
-                throw new ArgumentException($"{nameof(texts)} contains empty texts");
-            }
+		/// <summary>
+		/// Translate texts 
+		/// </summary>
+		/// <param name="texts">Texts to translate. Must not be empty</param>
+		/// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
+		/// <param name="targetLanguageCode">Language code of target language</param>
+		/// <param name="domain">Translation domain</param>
+		/// <param name="options">Additional options for translation request</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="TildeException"></exception>
+		public async Task<Models.Text.Translation> TranslateTextAsync(
+			  IEnumerable<string> texts,
+			  string? sourceLanguageCode,
+			  string targetLanguageCode,
+			  string? domain = null,
+			  TextTranslateOptions? options = null,
+			  CancellationToken cancellationToken = default)
+		{
+			options ??= new();
 
-            List<Guid> termCollections = [];
-            if (options.TermCollectionId != null)
-            {
-                if (Guid.TryParse(options.TermCollectionId, out var parsedGuid))
-                {
-                    termCollections.Add(parsedGuid);
-                }
-                else
-                {
-                    throw new ArgumentException($"'{options.TermCollectionId}' is not a valid terminology collection");
-                }
-            }
+			var emptyTexts = texts.Any(string.IsNullOrEmpty);
+			if (emptyTexts)
+			{
+				throw new ArgumentException($"{nameof(texts)} contains empty texts");
+			}
 
-            Guid? parsedEngineId = null;
+			List<Guid> termCollections = [];
+			if (options.TermCollectionId != null)
+			{
+				if (Guid.TryParse(options.TermCollectionId, out var parsedGuid))
+				{
+					termCollections.Add(parsedGuid);
+				}
+				else
+				{
+					throw new ArgumentException($"'{options.TermCollectionId}' is not a valid terminology collection");
+				}
+			}
 
-            if (options.EngineId != null)
-            {
-                if (Guid.TryParse(options.EngineId, out var parsedGuid))
-                {
-                    parsedEngineId = parsedGuid;
-                }
-                else
-                {
-                    throw new ArgumentException($"'{options.EngineId}' is not valid Engine id");
-                }
-            }
+			Guid? parsedEngineId = null;
 
-            var requestData = new Internal.Models.Text.TranslationRequest()
-            {
-                SourceLanguage = sourceLanguageCode,
-                Domain = domain,
-                EngineId = parsedEngineId,
-                TargetLanguage = targetLanguageCode,
-                TermCollections = termCollections,
-                Text = texts
-            };
+			if (options.EngineId != null)
+			{
+				if (Guid.TryParse(options.EngineId, out var parsedGuid))
+				{
+					parsedEngineId = parsedGuid;
+				}
+				else
+				{
+					throw new ArgumentException($"'{options.EngineId}' is not valid Engine id");
+				}
+			}
 
-            HttpContent content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+			var requestData = new Internal.Models.Text.TranslationRequest()
+			{
+				SourceLanguage = sourceLanguageCode,
+				Domain = domain,
+				EngineId = parsedEngineId,
+				TargetLanguage = targetLanguageCode,
+				TermCollections = termCollections,
+				Text = texts
+			};
 
-            using var responseMessage = await _client.ApiPostAsync("/api/translate/text", content, cancellationToken).ConfigureAwait(false);
+			HttpContent content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
 
-            await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
+			using var responseMessage = await _client.ApiPostAsync("/api/translate/text", content, cancellationToken).ConfigureAwait(false);
 
-            var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            var result = await JsonSerializer.DeserializeAsync<Models.Text.Translation>(json).ConfigureAwait(false);
+			await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
 
-            return result!;
-        }
+			var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+			var result = await JsonSerializer.DeserializeAsync<Models.Text.Translation>(json).ConfigureAwait(false);
 
-        /// <summary>
-        /// Translate single text
-        /// </summary>
-        /// <param name="text">Text to translate</param>
-        /// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
-        /// <param name="targetLanguageCode">Language code of target language</param>
-        /// <param name="domain">Translation domain</param>
-        /// <param name="options">Additional options for translation request</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="TildeException"></exception>
-        public async Task<Models.Text.Translation> TranslateTextAsync(
-              string text,
-              string? sourceLanguageCode,
-              string targetLanguageCode,
-              string? domain = null,
-              TextTranslateOptions? options = null,
-              CancellationToken cancellationToken = default)
-        {
-            var result = await TranslateTextAsync(
-                    new[] { text },
-                    sourceLanguageCode,
-                    targetLanguageCode,
-                    domain,
-                    options,
-                    cancellationToken
-                )
-                .ConfigureAwait(false);
+			return result!;
+		}
 
-            return result;
-        }
+		/// <summary>
+		/// Translate single text
+		/// </summary>
+		/// <param name="text">Text to translate</param>
+		/// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
+		/// <param name="targetLanguageCode">Language code of target language</param>
+		/// <param name="domain">Translation domain</param>
+		/// <param name="options">Additional options for translation request</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="TildeException"></exception>
+		public async Task<Models.Text.Translation> TranslateTextAsync(
+			  string text,
+			  string? sourceLanguageCode,
+			  string targetLanguageCode,
+			  string? domain = null,
+			  TextTranslateOptions? options = null,
+			  CancellationToken cancellationToken = default)
+		{
+			var result = await TranslateTextAsync(
+					new[] { text },
+					sourceLanguageCode,
+					targetLanguageCode,
+					domain,
+					options,
+					cancellationToken
+				)
+				.ConfigureAwait(false);
 
-        /// <summary>
-        /// Start document translation process. This will not wait for translation to finish. 
-        /// <br></br>
-        /// To follow translation progress use <see cref="TranslateDocumentStatusAsync(DocumentHandle, CancellationToken)"/>
-        /// <br></br>
-        /// Or to wait for translation to finish use <see cref="TranslateDocumentWaitUntilDoneAsync(DocumentHandle, CancellationToken)"/>
-        /// <br></br>
-        /// And when translation is completed sucessfully you download result using <see cref="TranslateDocumentResultAsync(DocumentHandle, Stream, CancellationToken)"/> 
-        /// </summary>
-        /// <param name="inputFileInfo">document to translate</param>
-        /// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
-        /// <param name="targetLanguageCode">Language code of target language</param>
-        /// <param name="domain">Translation domain</param>
-        /// <param name="options">Additional options for translation request</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="DocumentHandle"/> which can be used to interact with document that is being translated</returns>
-        /// <exception cref="TildeException"></exception>
-        public async Task<DocumentHandle> TranslateDocumentAsync(
-            FileInfo inputFileInfo,
-            string? sourceLanguageCode,
-            string targetLanguageCode,
-            string? domain = null,
-            DocumentTranslateOptions? options = null,
-            CancellationToken cancellationToken = default
-        )
-        {
-            using var file = inputFileInfo.OpenRead();
-            var fileName = inputFileInfo.Name;
+			return result;
+		}
 
-            var handle = await TranslateDocumentAsync(
-                    file,
-                    fileName,
-                    sourceLanguageCode,
-                    targetLanguageCode,
-                    domain,
-                    options,
-                    cancellationToken
-                ).ConfigureAwait(false);
+		/// <summary>
+		/// Start document translation process. This will not wait for translation to finish. 
+		/// <br></br>
+		/// To follow translation progress use <see cref="TranslateDocumentStatusAsync(DocumentHandle, CancellationToken)"/>
+		/// <br></br>
+		/// Or to wait for translation to finish use <see cref="TranslateDocumentWaitUntilDoneAsync(DocumentHandle, CancellationToken)"/>
+		/// <br></br>
+		/// And when translation is completed sucessfully you download result using <see cref="TranslateDocumentResultAsync(DocumentHandle, Stream, CancellationToken)"/> 
+		/// </summary>
+		/// <param name="inputFileInfo">document to translate</param>
+		/// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
+		/// <param name="targetLanguageCode">Language code of target language</param>
+		/// <param name="domain">Translation domain</param>
+		/// <param name="options">Additional options for translation request</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns><see cref="DocumentHandle"/> which can be used to interact with document that is being translated</returns>
+		/// <exception cref="TildeException"></exception>
+		public async Task<DocumentHandle> TranslateDocumentAsync(
+			FileInfo inputFileInfo,
+			string? sourceLanguageCode,
+			string targetLanguageCode,
+			string? domain = null,
+			DocumentTranslateOptions? options = null,
+			CancellationToken cancellationToken = default
+		)
+		{
+			using var file = inputFileInfo.OpenRead();
+			var fileName = inputFileInfo.Name;
 
-            return handle;
-        }
+			var handle = await TranslateDocumentAsync(
+					file,
+					fileName,
+					sourceLanguageCode,
+					targetLanguageCode,
+					domain,
+					options,
+					cancellationToken
+				).ConfigureAwait(false);
 
-        /// <summary>
-        /// Start document translation process. This will not wait for translation to finish. 
-        /// <br></br>
-        /// To follow translation progress use <see cref="TranslateDocumentStatusAsync(DocumentHandle, CancellationToken)"/>
-        /// <br></br>
-        /// Or to wait for translation to finish use <see cref="TranslateDocumentWaitUntilDoneAsync(DocumentHandle, CancellationToken)"/>
-        /// <br></br>
-        /// And when translation is completed sucessfully you download result using <see cref="TranslateDocumentResultAsync(DocumentHandle, Stream, CancellationToken)"/> 
-        /// </summary>
-        /// <param name="file">File contents to translate</param>
-        /// <param name="fileName">Name of <paramref name="file"/></param>
-        /// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
-        /// <param name="targetLanguageCode">Language code of target language</param>
-        /// <param name="domain">Translation domain</param>
-        /// <param name="options">Additional options for translation request</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="DocumentHandle"/> which can be used to interact with document that is being translated</returns>
-        /// <exception cref="TildeException"></exception>
-        public async Task<DocumentHandle> TranslateDocumentAsync(
-            Stream file,
-            string fileName,
-            string? sourceLanguageCode,
-            string targetLanguageCode,
-            string? domain = null,
-            DocumentTranslateOptions? options = null,
-            CancellationToken cancellationToken = default)
-        {
-            options ??= new();
+			return handle;
+		}
 
-            using var content = new MultipartFormDataContent();
-            var fileContent = new StreamContent(file);
-            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-            {
-                Name = "file",
-                FileName = fileName
-            };
+		/// <summary>
+		/// Start document translation process. This will not wait for translation to finish. 
+		/// <br></br>
+		/// To follow translation progress use <see cref="TranslateDocumentStatusAsync(DocumentHandle, CancellationToken)"/>
+		/// <br></br>
+		/// Or to wait for translation to finish use <see cref="TranslateDocumentWaitUntilDoneAsync(DocumentHandle, CancellationToken)"/>
+		/// <br></br>
+		/// And when translation is completed sucessfully you download result using <see cref="TranslateDocumentResultAsync(DocumentHandle, Stream, CancellationToken)"/> 
+		/// </summary>
+		/// <param name="file">File contents to translate</param>
+		/// <param name="fileName">Name of <paramref name="file"/></param>
+		/// <param name="sourceLanguageCode">Language code of input language, or null for auto-detection</param>
+		/// <param name="targetLanguageCode">Language code of target language</param>
+		/// <param name="domain">Translation domain</param>
+		/// <param name="options">Additional options for translation request</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns><see cref="DocumentHandle"/> which can be used to interact with document that is being translated</returns>
+		/// <exception cref="TildeException"></exception>
+		public async Task<DocumentHandle> TranslateDocumentAsync(
+			Stream file,
+			string fileName,
+			string? sourceLanguageCode,
+			string targetLanguageCode,
+			string? domain = null,
+			DocumentTranslateOptions? options = null,
+			CancellationToken cancellationToken = default)
+		{
+			options ??= new();
 
-            content.Add(fileContent);
-            if (sourceLanguageCode != null)
-            {
-                content.Add(new StringContent(sourceLanguageCode), "srcLang");
-            }
-            content.Add(new StringContent(targetLanguageCode), "trgLang");
-            if (domain != null)
-            {
-                content.Add(new StringContent(domain), "domain");
-            }
-            if (options.TermCollectionId != null)
-            {
-                content.Add(new StringContent(options.TermCollectionId), "termCollections[0]");
-            }
-            if (options.EngineId != null)
-            {
-                content.Add(new StringContent(options.EngineId), "engineId");
-            }
-            using var responseMessage = await _client.ApiPostAsync($"/api/translate/file", content, cancellationToken).ConfigureAwait(false);
+			using var content = new MultipartFormDataContent();
+			var fileContent = new StreamContent(file);
+			fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+			{
+				Name = "file",
+				FileName = fileName
+			};
 
-            await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
+			content.Add(fileContent);
+			if (sourceLanguageCode != null)
+			{
+				content.Add(new StringContent(sourceLanguageCode), "srcLang");
+			}
+			content.Add(new StringContent(targetLanguageCode), "trgLang");
+			if (domain != null)
+			{
+				content.Add(new StringContent(domain), "domain");
+			}
+			if (options.TermCollectionId != null)
+			{
+				content.Add(new StringContent(options.TermCollectionId), "termCollections[0]");
+			}
+			if (options.EngineId != null)
+			{
+				content.Add(new StringContent(options.EngineId), "engineId");
+			}
+			using var responseMessage = await _client.ApiPostAsync($"/api/translate/file", content, cancellationToken).ConfigureAwait(false);
 
-            var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            var result = await JsonSerializer.DeserializeAsync<Internal.Models.Document.Task>(json).ConfigureAwait(false);
+			await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
 
-            return new DocumentHandle(result!);
-        }
+			var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+			var result = await JsonSerializer.DeserializeAsync<Internal.Models.Document.Task>(json).ConfigureAwait(false);
 
-        /// <summary>
-        /// Get extended status of document translation
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="Internal.Models.Document.Task"/> which can be used to check if translation was successfull</returns>
-        /// <exception cref="TildeException"></exception>
-        internal async Task<Internal.Models.Document.Task> TranslateDocumentExtendedStatusAsync(
-            DocumentHandle handle,
-            CancellationToken cancellationToken = default)
-        {
-            using var responseMessage = await _client.ApiGetAsync($"/api/translate/file/{handle.TaskId}", cancellationToken).ConfigureAwait(false);
+			return new DocumentHandle(result!);
+		}
 
-            await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
+		/// <summary>
+		/// Get extended status of document translation
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns><see cref="Internal.Models.Document.Task"/> which can be used to check if translation was successfull</returns>
+		/// <exception cref="TildeException"></exception>
+		internal async Task<Internal.Models.Document.Task> TranslateDocumentExtendedStatusAsync(
+			DocumentHandle handle,
+			CancellationToken cancellationToken = default)
+		{
+			using var responseMessage = await _client.ApiGetAsync($"/api/translate/file/{handle.TaskId}", cancellationToken).ConfigureAwait(false);
 
-            var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            var result = await JsonSerializer.DeserializeAsync<Internal.Models.Document.Task>(json).ConfigureAwait(false);
+			await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
 
-            return result!;
-        }
+			var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+			var result = await JsonSerializer.DeserializeAsync<Internal.Models.Document.Task>(json).ConfigureAwait(false);
 
-        /// <summary>
-        /// Get status of document translation task
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="DocumentStatus"/> which can be used to check if translation was successfull</returns>
-        /// <exception cref="TildeException"></exception>
-        public async Task<DocumentStatus> TranslateDocumentStatusAsync(
-            DocumentHandle handle,
-            CancellationToken cancellationToken = default)
-        {
-            var extendedStatus = await TranslateDocumentExtendedStatusAsync(handle, cancellationToken).ConfigureAwait(false);
+			return result!;
+		}
 
-            return new DocumentStatus(extendedStatus!);
-        }
+		/// <summary>
+		/// Get status of document translation task
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns><see cref="DocumentStatus"/> which can be used to check if translation was successfull</returns>
+		/// <exception cref="TildeException"></exception>
+		public async Task<DocumentStatus> TranslateDocumentStatusAsync(
+			DocumentHandle handle,
+			CancellationToken cancellationToken = default)
+		{
+			var extendedStatus = await TranslateDocumentExtendedStatusAsync(handle, cancellationToken).ConfigureAwait(false);
 
-        /// <summary>
-        /// Wait for document translation task to finish
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="DocumentStatus"/> which can be used to check if translation was successfull</returns>
-        /// <exception cref="TildeException"></exception>
-        public async Task<DocumentStatus> TranslateDocumentWaitUntilDoneAsync(
-            DocumentHandle handle,
-            CancellationToken cancellationToken = default
-        )
-        {
-            var documentStatus = await TranslateDocumentStatusAsync(handle, cancellationToken).ConfigureAwait(false);
+			return new DocumentStatus(extendedStatus!);
+		}
 
-            while (!documentStatus.Done)
-            {
-                await Task.Delay(DocumentStatusWaitPollInterval, cancellationToken).ConfigureAwait(false);
+		/// <summary>
+		/// Wait for document translation task to finish
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns><see cref="DocumentStatus"/> which can be used to check if translation was successfull</returns>
+		/// <exception cref="TildeException"></exception>
+		public async Task<DocumentStatus> TranslateDocumentWaitUntilDoneAsync(
+			DocumentHandle handle,
+			CancellationToken cancellationToken = default
+		)
+		{
+			var documentStatus = await TranslateDocumentStatusAsync(handle, cancellationToken).ConfigureAwait(false);
 
-                documentStatus = await TranslateDocumentStatusAsync(handle, cancellationToken).ConfigureAwait(false);
-            }
+			while (!documentStatus.Done)
+			{
+				await Task.Delay(DocumentStatusWaitPollInterval, cancellationToken).ConfigureAwait(false);
 
-            return documentStatus;
-        }
+				documentStatus = await TranslateDocumentStatusAsync(handle, cancellationToken).ConfigureAwait(false);
+			}
 
-        /// <summary>
-        /// Get document result. Result file can be with different extension and format than input file.
-        /// <br></br>
-        /// To see what file results are available use <see cref="DocumentStatus"/>
-        /// <br></br>
-        /// If specific document file is needed, use <see cref="TranslateDocumentResultAsync(DocumentHandle, Stream, Guid, CancellationToken)"/> providing file id
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="outputFile">Stream where to store translation file contents</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="Models.Document.File"/> File that was returned</returns>
-        /// <exception cref="DocumentNotReadyException"></exception>
-        /// <exception cref="DocumentTranslationException">Document translation was not successfull</exception>
-        /// <exception cref="TildeException"></exception>
-        public async Task<Models.Document.File> TranslateDocumentResultAsync(
-            DocumentHandle handle,
-            Stream outputFile,
-            CancellationToken cancellationToken = default
-        )
-        {
-            var documentStatus = await TranslateDocumentStatusAsync(handle, cancellationToken).ConfigureAwait(false);
+			return documentStatus;
+		}
 
-            if (!documentStatus.Done)
-            {
-                throw new DocumentNotReadyException(documentStatus.Status);
-            }
+		/// <summary>
+		/// Get document result. Result file can be with different extension and format than input file.
+		/// <br></br>
+		/// To see what file results are available use <see cref="DocumentStatus"/>
+		/// <br></br>
+		/// If specific document file is needed, use <see cref="TranslateDocumentResultAsync(DocumentHandle, Stream, Guid, CancellationToken)"/> providing file id
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <param name="outputFile">Stream where to store translation file contents</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns><see cref="Models.Document.File"/> File that was returned</returns>
+		/// <exception cref="DocumentNotReadyException"></exception>
+		/// <exception cref="DocumentTranslationException">Document translation was not successfull</exception>
+		/// <exception cref="TildeException"></exception>
+		public async Task<Models.Document.File> TranslateDocumentResultAsync(
+			DocumentHandle handle,
+			Stream outputFile,
+			CancellationToken cancellationToken = default
+		)
+		{
+			var documentStatus = await TranslateDocumentStatusAsync(handle, cancellationToken).ConfigureAwait(false);
 
-            if (documentStatus.Status == Enums.Document.TranslationStatus.Error)
-            {
-                throw new DocumentTranslationException(documentStatus.Substatus);
-            }
+			if (!documentStatus.Done)
+			{
+				throw new DocumentNotReadyException(documentStatus.Status);
+			}
 
-            var sourceFile = documentStatus.Files
-                .First(item => item.Category == Enums.Document.FileCategory.Source);
+			if (documentStatus.Status == Enums.Document.TranslationStatus.Error)
+			{
+				throw new DocumentTranslationException(documentStatus.Substatus);
+			}
 
-            var translatedFiles = documentStatus.Files
-                .Where(item =>
-                    item.Category == Enums.Document.FileCategory.Translated ||
-                    item.Category == Enums.Document.FileCategory.TranslatedConverted
-                );
+			var sourceFile = documentStatus.Files
+				.First(item => item.Category == Enums.Document.FileCategory.Source);
 
-            Models.Document.File? resultFile = null;
+			var translatedFiles = documentStatus.Files
+				.Where(item =>
+					item.Category == Enums.Document.FileCategory.Translated ||
+					item.Category == Enums.Document.FileCategory.TranslatedConverted
+				);
 
-            // First of all, try the same extension file
-            resultFile = translatedFiles
-                .FirstOrDefault(item => item.Extension == sourceFile.Extension);
+			Models.Document.File? resultFile = null;
 
-            if (resultFile == null)
-            {
-                // If same extension result is not found, then just return first result
-                resultFile = translatedFiles.First();
-            }
+			// First of all, try the same extension file
+			resultFile = translatedFiles
+				.FirstOrDefault(item => item.Extension == sourceFile.Extension);
 
-            await TranslateDocumentResultAsync(handle, outputFile, resultFile.Id, cancellationToken).ConfigureAwait(false);
+			if (resultFile == null)
+			{
+				// If same extension result is not found, then just return first result
+				resultFile = translatedFiles.First();
+			}
 
-            return resultFile;
-        }
+			await TranslateDocumentResultAsync(handle, outputFile, resultFile.Id, cancellationToken).ConfigureAwait(false);
 
-        /// <summary>
-        /// Get document result
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="outputFile">Stream where to store translation file contents</param>
-        /// <param name="resultFileId"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="TildeException"></exception>
-        public async Task TranslateDocumentResultAsync(
-            DocumentHandle handle,
-            Stream outputFile,
-            Guid resultFileId,
-            CancellationToken cancellationToken = default
-        )
-        {
-            using var responseMessage = await _client.ApiGetAsync($"/api/translate/file/{handle.TaskId}/{resultFileId}", cancellationToken).ConfigureAwait(false);
+			return resultFile;
+		}
 
-            await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
+		/// <summary>
+		/// Get document result
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <param name="outputFile">Stream where to store translation file contents</param>
+		/// <param name="resultFileId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		/// <exception cref="TildeException"></exception>
+		public async Task TranslateDocumentResultAsync(
+			DocumentHandle handle,
+			Stream outputFile,
+			Guid resultFileId,
+			CancellationToken cancellationToken = default
+		)
+		{
+			using var responseMessage = await _client.ApiGetAsync($"/api/translate/file/{handle.TaskId}/{resultFileId}", cancellationToken).ConfigureAwait(false);
 
-            await responseMessage.Content.CopyToAsync(outputFile).ConfigureAwait(false);
-        }
+			await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
 
-        /// <summary>
-        /// Get all MT engines
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="TildeException"></exception>
-        public async Task<IEnumerable<Models.Engine.Engine>> GetEnginesAsync(
-            CancellationToken cancellationToken = default
-        )
-        {
-            using var responseMessage = await _client.ApiGetAsync($"/api/engine", cancellationToken).ConfigureAwait(false);
+			await responseMessage.Content.CopyToAsync(outputFile).ConfigureAwait(false);
+		}
 
-            await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
+		/// <summary>
+		/// Get all MT engines
+		/// </summary>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		/// <exception cref="TildeException"></exception>
+		public async Task<IEnumerable<Models.Engine.Engine>> GetEnginesAsync(
+			CancellationToken cancellationToken = default
+		)
+		{
+			using var responseMessage = await _client.ApiGetAsync($"/api/engine", cancellationToken).ConfigureAwait(false);
 
-            var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+			await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
 
-            var result = await JsonSerializer.DeserializeAsync<Models.Engine.EngineList>(json).ConfigureAwait(false);
+			var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
-            return result!.Engines;
-        }
+			var result = await JsonSerializer.DeserializeAsync<Models.Engine.EngineList>(json).ConfigureAwait(false);
 
-        /// <summary>
-        /// Get library version
-        /// </summary>
-        /// <returns></returns>
-        public static string Version()
-        {
-            var version = VersionProvider.GetVersion();
+			return result!.Engines;
+		}
 
-            return version;
-        }
+		/// <summary>
+		/// Get library version
+		/// </summary>
+		/// <returns></returns>
+		public static string Version()
+		{
+			var version = VersionProvider.GetVersion();
 
-        /// <summary>
-        /// Create user agent string from appInfo
-        /// </summary>
-        /// <param name="sendPlatformInfo"></param>
-        /// <param name="appInfo"></param>
-        /// <returns></returns>
-        private static string ConstructUserAgentString(AppInfo? appInfo = null, bool sendPlatformInfo = true)
-        {
-            var platformInfoString = $"tilde-dotnet/{Version()}";
-            if (sendPlatformInfo)
-            {
-                var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-                var clrVersion = Environment.Version.ToString();
-                platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
-            }
-            if (appInfo != null)
-            {
-                platformInfoString += $" {appInfo.AppName}/{appInfo.AppVersion}";
-            }
-            return platformInfoString;
-        }
+			return version;
+		}
 
-        /// <summary>
-        /// Dispose client
-        /// </summary>
-        public void Dispose()
-        {
-            _client.Dispose();
-        }
-    }
+		/// <summary>
+		/// Create user agent string from appInfo
+		/// </summary>
+		/// <param name="sendPlatformInfo"></param>
+		/// <param name="appInfo"></param>
+		/// <returns></returns>
+		private static string ConstructUserAgentString(AppInfo? appInfo = null, bool sendPlatformInfo = true)
+		{
+			var platformInfoString = $"tilde-dotnet/{Version()}";
+			if (sendPlatformInfo)
+			{
+				var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+				var clrVersion = Environment.Version.ToString();
+				platformInfoString += $" ({osDescription}) dotnet-clr/{clrVersion}";
+			}
+			if (appInfo != null)
+			{
+				platformInfoString += $" {appInfo.AppName}/{appInfo.AppVersion}";
+			}
+			return platformInfoString;
+		}
+
+		/// <summary>
+		/// Dispose client
+		/// </summary>
+		public void Dispose()
+		{
+			_client.Dispose();
+		}
+	}
 }
