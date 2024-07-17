@@ -25,8 +25,8 @@ namespace Tilde.Translation
         public string? AppVersion { get; set; }
 
         /// <summary>
-		/// Domain of the website which is using web translation widget and requests machine translations
-		/// </summary>
-		public string? WebsiteDomain { get; set; }
+        /// Domain of the website which is using web translation widget and requests machine translations
+        /// </summary>
+        public string? WebsiteDomain { get; set; }
     }
 }
