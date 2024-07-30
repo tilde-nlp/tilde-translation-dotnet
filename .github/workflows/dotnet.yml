@@ -24,7 +24,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Build app for release
-      run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -verbosity:diag -property:Configuration=Release
+      run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
 
 # - name: Restore dependencies
 #   run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
