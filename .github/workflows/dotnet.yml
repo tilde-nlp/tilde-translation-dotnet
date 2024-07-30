@@ -28,4 +28,4 @@ jobs:
     - name: Publish to private nuget repo
       run: |
         gci -r -fi *.nupkg
-        dotnet nuget push .\Tilde.Translation/bin/Release/Tilde.Translation.*.nupkg --api-key ${{ secrets.NUGET_PAT }} --source https://api.nuget.org/v3/index.json
+        dotnet nuget push Tilde.Translation.*.nupkg --api-key ${{ secrets.NUGET_PAT }} --source https://api.nuget.org/v3/index.json
