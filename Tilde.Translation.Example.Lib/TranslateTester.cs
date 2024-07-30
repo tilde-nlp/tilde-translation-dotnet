@@ -14,15 +14,16 @@ namespace Tilde.Translation.Example.Lib
     {
         private readonly Translator translator;
 
-        public TranslateTester(string apiKey)
+        public TranslateTester(string apiKey, string serverUrl = "https://translate.tilde.ai")
         {
             var options = new TranslatorOptions()
             {
                 AppInfo = new AppInfo()
                 {
                     AppName = "my-app",
-                    AppVersion = "1.0.0",
-                }
+                    AppVersion = "1.0.0"
+                },
+                ServerUrl = serverUrl
             };
 
             translator = new Translator(apiKey, options);
@@ -50,7 +51,7 @@ namespace Tilde.Translation.Example.Lib
             var sourceDocument = new FileInfo(sourceDocumentPath);
 
             // Start document translation
-            var documentHandle = await translator.TranslateDocumentAsync(sourceDocument, "en", "lv");
+            var documentHandle = await translator.TranslateDocumentAsync(sourceDocument, "en", "lv", "GENERAL");
 
             // Wait for document translation to finish
             var documentStatus = await translator.TranslateDocumentWaitUntilDoneAsync(documentHandle);

@@ -307,7 +307,7 @@ namespace Tilde.Translation
             await ApiClient.EnsureSuccessStatusCodeAsync(responseMessage).ConfigureAwait(false);
 
             var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            var result = await JsonSerializer.DeserializeAsync<Internal.Models.Document.Task>(json).ConfigureAwait(false);
+            var result = await JsonSerializer.DeserializeAsync<Internal.Models.Document.Task>(json, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             return result!;
         }
@@ -449,7 +449,7 @@ namespace Tilde.Translation
 
             var json = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
-            var result = await JsonSerializer.DeserializeAsync<Models.Engine.EngineList>(json).ConfigureAwait(false);
+            var result = await JsonSerializer.DeserializeAsync<Models.Engine.EngineList>(json, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             return result!.Engines;
         }

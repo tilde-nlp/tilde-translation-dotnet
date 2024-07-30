@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tilde.Translation.Example.Lib\Tilde.Translation.Example.Lib.csproj" />
+    <ProjectReference Include="..\Tilde.Translation\Tilde.Translation.csproj" />
   </ItemGroup>
 
 </Project>
