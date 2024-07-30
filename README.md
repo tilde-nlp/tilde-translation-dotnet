@@ -33,7 +33,7 @@ var apiKey = "00000000-0000-0000-0000-000000000000";
 var translator = new Translator(apiKey);
 ```
 
-When implementing this library in your application, please provide information about application where this library will be used:
+When implementing this library in your application, please provide information about application where this library will be used. This is optional step, but recomended
 
 ```c#
 var options = new TranslatorOptions()
@@ -44,7 +44,7 @@ var options = new TranslatorOptions()
         AppVersion = "1.0.0",
     }
 };
-var translator = new Translator("00000000-0000-0000-0000-000000000000", options);
+var translator = new Translator(apiKey, options);
 ```
 
 ### Translating text
