@@ -17,17 +17,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-    - name: Clean nuget packages
-      run: |
-        $packages = gci -r -fi *.nupkg
-        echo "Found packages: $packages"
-        foreach ($package in $packages)
-        {
-          Write-Host "Removing package: $package"
-          Remove-Item $package.FullName
-        }
-    - name: Restore dependencies
-      run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
     - name: Update build version
       run: |
         $PROJECT_FILE=".\Tilde.Translation\Tilde.Translation.csproj"
@@ -37,10 +26,13 @@ jobs:
 
         # TMP output
         cat $PROJECT_FILE
+    - name: Restore dependencies
+      run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
     - name: Build app for release
       run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
     - name: Publish to private nuget repo
       run: |
+        cat ".\Tilde.Translation\Tilde.Translation.csproj"
         gci -r -fi *.nupkg
         $NUGET_PACKAGE_PATH=gci -r -fi *.nupkg | % { $_.FullName }
         echo "Nuget package path: $NUGET_PACKAGE_PATH"
