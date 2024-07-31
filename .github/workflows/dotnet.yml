@@ -17,6 +17,15 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+    - name: Clean nuget packages
+      run: |
+        $packages = gci -r -fi *.nupkg
+        echo "Found packages: $packages"
+        foreach ($package in $packages)
+        {
+          Write-Host "Removing package: $package"
+          Remove-Item $package.FullName
+        }
     - name: Restore dependencies
       run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
     - name: Update build version
