@@ -29,7 +29,9 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
     - name: Build app for release
-      run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
+      run: |
+        msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
+        msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
     - name: Publish to private nuget repo
       run: |
         cat ".\Tilde.Translation\Tilde.Translation.csproj"
