@@ -19,15 +19,18 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
+    - name: Project clean
+      run: dotnet clean
     - name: Update build version
       run: |
         $PROJECT_FILE=".\Tilde.Translation\Tilde.Translation.csproj"
         $BUILD_NUMBER="${{github.run_number}}"
+        echo "Build number: $BUILD_NUMBER"
         (Get-Content -Path $PROJECT_FILE) -replace "(?<=<Version>)(\d+\.\d+\.\d+\.)(\d+)(?=</Version>)", "`$1$BUILD_NUMBER" | Set-Content -Path $PROJECT_FILE
     - name: Build app for release
       run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
     - name: Publish to private nuget repo
       run: |
         $NUGET_PACKAGE_PATH=gci -r -fi *.nupkg | % { $_.FullName }
-        echo $NUGET_PACKAGE_PATH
+        echo "Nuget package path: $NUGET_PACKAGE_PATH"
         dotnet nuget push $NUGET_PACKAGE_PATH --api-key ${{ secrets.NUGET_PAT }} --source https://api.nuget.org/v3/index.json
