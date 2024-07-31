@@ -22,7 +22,7 @@ namespace Tilde.Translation
         /// <br></br>
         /// Usually used only for testing purposes
         /// </summary>
-        public string ServerUrl { get; set; } = "https://mtnova-dev.tilde.lv";
+        public string ServerUrl { get; set; } = "https://translate.tilde.ai";
 
         /// <summary>
         /// Http client factory that will be used for all API calls
