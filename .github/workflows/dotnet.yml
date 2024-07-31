@@ -19,6 +19,11 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
+    - name: Update build version
+      run: |
+        $PROJECT_FILE=".\Tilde.Translation\Tilde.Translation.csproj"
+        $BUILD_NUMBER="${{github.run_number}}"
+        (Get-Content -Path $PROJECT_FILE) -replace "(?<=<Version>)(\d+\.\d+\.\d+\.)(\d+)(?=</Version>)", "`$1$BUILD_NUMBER" | Set-Content -Path $PROJECT_FILE
     - name: Build app for release
       run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
     - name: Publish to private nuget repo
