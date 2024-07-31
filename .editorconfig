@@ -1,6 +1,6 @@
 root = true
 
 [*.cs]
-file_header_template = Copyright 2024 Tilde SIA (https://tilde.com/)\nUse of this source code is governed by an MIT\nlicense that can be found in the LICENSE file.
+file_header_template = Copyright 2024 Tilde SIA (https://translate.tilde.ai/)\nUse of this source code is governed by an MIT\nlicense that can be found in the LICENSE file.
 max_line_length = 120
 trim_trailing_whitespace = true
