@@ -19,8 +19,6 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore .\Tilde.Translation\Tilde.Translation.csproj
-    - name: Project clean
-      run: dotnet clean
     - name: Update build version
       run: |
         $PROJECT_FILE=".\Tilde.Translation\Tilde.Translation.csproj"
