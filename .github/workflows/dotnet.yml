@@ -29,6 +29,7 @@ jobs:
       run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
     - name: Publish to private nuget repo
       run: |
+        gci -r -fi *.nupkg
         $NUGET_PACKAGE_PATH=gci -r -fi *.nupkg | % { $_.FullName }
         echo "Nuget package path: $NUGET_PACKAGE_PATH"
         dotnet nuget push $NUGET_PACKAGE_PATH --api-key ${{ secrets.NUGET_PAT }} --source https://api.nuget.org/v3/index.json --skip-duplicate
