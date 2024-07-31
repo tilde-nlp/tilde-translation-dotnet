@@ -33,7 +33,7 @@ jobs:
         $PROJECT_FILE=".\Tilde.Translation\Tilde.Translation.csproj"
         $BUILD_NUMBER="${{github.run_number}}"
         echo "Build number: $BUILD_NUMBER"
-        (Get-Content -Path $PROJECT_FILE) -replace "(?<=<Version>)(\d+\.\d+\.\d+\.)(\d+)(?=</Version>)", "`$1$BUILD_NUMBER" | Set-Content -Path $PROJECT_FILE
+        (Get-Content -Path $PROJECT_FILE) -replace "(?<=<Version>)(\d+\.\d+\.\d+\.)(\d+)(?=</Version>)", "`$$1$BUILD_NUMBER" | Set-Content -Path $PROJECT_FILE
 
         # TMP output
         cat $PROJECT_FILE
