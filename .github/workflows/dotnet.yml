@@ -34,6 +34,9 @@ jobs:
         $BUILD_NUMBER="${{github.run_number}}"
         echo "Build number: $BUILD_NUMBER"
         (Get-Content -Path $PROJECT_FILE) -replace "(?<=<Version>)(\d+\.\d+\.\d+\.)(\d+)(?=</Version>)", "`$1$BUILD_NUMBER" | Set-Content -Path $PROJECT_FILE
+
+        # TMP output
+        cat $PROJECT_FILE
     - name: Build app for release
       run: msbuild Tilde.Translation\Tilde.Translation.csproj -t:rebuild -property:Configuration=Release
     - name: Publish to private nuget repo
