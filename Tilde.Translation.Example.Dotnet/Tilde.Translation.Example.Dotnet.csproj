@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Document\ExampleDocument.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Document\ExampleDocument.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tilde.Translation.Example.Lib\Tilde.Translation.Example.Lib.csproj" />
+    <ProjectReference Include="..\Tilde.Translation\Tilde.Translation.csproj" />
+  </ItemGroup>
+
+</Project>

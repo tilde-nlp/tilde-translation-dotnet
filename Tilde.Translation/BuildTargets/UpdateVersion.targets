@@ -1,0 +1,52 @@
+﻿<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' ToolsVersion="15.0">
+  <UsingTask TaskName="UpdateVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Xml"/>
+      <Using Namespace="System.Xml"/>
+      <Using Namespace="System.IO"/>
+      <Using Namespace="System.Text.RegularExpressions"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+
+string contents = "";
+XmlDocument xmlDoc = new XmlDocument();
+
+var csprojFile = "Tilde.Translation.csproj";
+
+using(StreamReader reader = new StreamReader(csprojFile))
+{
+    contents = reader.ReadToEnd();
+}
+xmlDoc.LoadXml(contents);
+
+var version = xmlDoc["Project"]["PropertyGroup"]["Version"].InnerText;
+
+xmlDoc["Project"]["PropertyGroup"]["PackageVersion"].InnerText = version;
+xmlDoc["Project"]["PropertyGroup"]["FileVersion"].InnerText = version;
+xmlDoc["Project"]["PropertyGroup"]["AssemblyVersion"].InnerText = version;
+
+XmlTextWriter wr = new XmlTextWriter(csprojFile, Encoding.UTF8);
+wr.Formatting = Formatting.Indented; 
+xmlDoc.Save(wr);
+wr.Close();
+
+using(StreamReader reader = new StreamReader("Internal/VersionProvider.cs"))
+{
+    contents = reader.ReadToEnd();
+}
+
+Regex compiledVersionCode = new Regex("[^\n]*private const string compiledVersion[^\n]*");
+
+using (StreamWriter writer = new StreamWriter("Internal/VersionProvider.cs"))
+{
+   writer.WriteLine(compiledVersionCode.Replace(contents, "        private const string compiledVersion = \"" + version + "\";").Trim());
+}
+
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+</Project>
