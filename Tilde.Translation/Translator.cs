@@ -91,7 +91,7 @@ namespace Tilde.Translation
               string? sourceLanguageCode,
               string targetLanguageCode,
               string? domain = null,
-              TextTranslateOptions? options = null,
+              TranslateOptions? options = null,
               CancellationToken cancellationToken = default)
         {
             options ??= new();
@@ -168,7 +168,7 @@ namespace Tilde.Translation
               string? sourceLanguageCode,
               string targetLanguageCode,
               string? domain = null,
-              TextTranslateOptions? options = null,
+              TranslateOptions? options = null,
               CancellationToken cancellationToken = default)
         {
             var result = await TranslateTextAsync(
@@ -206,7 +206,7 @@ namespace Tilde.Translation
             string? sourceLanguageCode,
             string targetLanguageCode,
             string? domain = null,
-            DocumentTranslateOptions? options = null,
+            TranslateOptions? options = null,
             CancellationToken cancellationToken = default
         )
         {
@@ -250,7 +250,7 @@ namespace Tilde.Translation
             string? sourceLanguageCode,
             string targetLanguageCode,
             string? domain = null,
-            DocumentTranslateOptions? options = null,
+            TranslateOptions? options = null,
             CancellationToken cancellationToken = default)
         {
             options ??= new();

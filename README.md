@@ -24,7 +24,7 @@ nuget install Tilde.Translation
 
 ## Usage
 
-Initialize Translator using apiKey. 
+Initialize Translator using [Access key](https://help.tilde.ai/tilde-mt/guides/access-keys) (API key).
 ```c#
 using Tilde.Translation;
 using Tilde.Translation.Exceptions;
