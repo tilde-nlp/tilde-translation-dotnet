@@ -25,8 +25,8 @@ namespace Tilde.Translation
         public string? AppVersion { get; set; }
 
         /// <summary>
-        /// Host name which requests machine translation
+        /// Origin which requests machine translation
         /// </summary>
-        public string? ForwardedHost { get; set; }
+        public string? Origin { get; set; }
     }
 }
