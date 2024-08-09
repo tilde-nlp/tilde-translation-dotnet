@@ -66,9 +66,9 @@ namespace Tilde.Translation
                 headers.Add("X-APP-ID", options.AppInfo?.AppId);
             }
 
-            if (!string.IsNullOrEmpty(options.AppInfo?.ForwardedHost))
+            if (!string.IsNullOrEmpty(options.AppInfo?.Origin))
             {
-                headers.Add("X-Forwarded-Host", options.AppInfo?.ForwardedHost);
+                headers.Add("Origin", options.AppInfo?.Origin);
             }
 
             _client = new ApiClient(new Uri(options.ServerUrl), options.ClientFactory, headers);
