@@ -17,12 +17,12 @@ namespace Tilde.Translation
         /// <summary>
         /// Application name where this library will be used
         /// </summary>
-        public string? AppName { get; set; }
+        public string AppName { get; set; }
 
         /// <summary>
         /// Version of application where this library will be used
         /// </summary>
-        public string? AppVersion { get; set; }
+        public string AppVersion { get; set; }
 
         /// <summary>
         /// Origin which requests machine translation
