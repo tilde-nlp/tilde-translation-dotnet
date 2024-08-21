@@ -39,14 +39,17 @@ namespace Tilde.Translation
         {
             options ??= new TranslatorOptions();
 
-            if (string.IsNullOrWhiteSpace(options.AppInfo?.AppVersion))
+            if (options.AppInfo != null)
             {
-                throw new ArgumentNullException($"{nameof(options)}.{nameof(options.AppInfo)}.{nameof(options.AppInfo.AppVersion)}");
-            }
+                if (string.IsNullOrWhiteSpace(options.AppInfo.AppVersion))
+                {
+                    throw new ArgumentNullException($"{nameof(options)}.{nameof(options.AppInfo)}.{nameof(options.AppInfo.AppVersion)}");
+                }
 
-            if (string.IsNullOrWhiteSpace(options.AppInfo?.AppName))
-            {
-                throw new ArgumentNullException($"{nameof(options)}.{nameof(options.AppInfo)}.{nameof(options.AppInfo.AppName)}");
+                if (string.IsNullOrWhiteSpace(options.AppInfo.AppName))
+                {
+                    throw new ArgumentNullException($"{nameof(options)}.{nameof(options.AppInfo)}.{nameof(options.AppInfo.AppName)}");
+                }
             }
 
             if (apiKey == null)
