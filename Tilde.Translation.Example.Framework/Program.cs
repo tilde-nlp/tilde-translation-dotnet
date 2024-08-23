@@ -11,11 +11,12 @@ namespace Tilde.Translation.Example.Framework
         static async Task Main(string[] args)
         {
             var apiKey = "";
-            var tester = new Tilde.Translation.Example.Lib.TranslateTester(apiKey);
+            var tester = new Lib.TranslateTester(apiKey);
 
             await tester.TranslateTextAsync();
             await tester.TranslateDocumentAsync("./Document/ExampleDocument.txt", "./Document/ExampleDocumentResult.txt");
             await tester.GetEnginesAsync();
+            await tester.GetLanguageDirectionsAsync();
         }
     }
 }

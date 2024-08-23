@@ -4,12 +4,14 @@
 
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Tilde.Translation.Exceptions;
 using Tilde.Translation.Internal;
 using Tilde.Translation.Models;
 using Tilde.Translation.Models.Document;
+using Tilde.Translation.Models.Engine;
 
 namespace Tilde.Translation
 {
@@ -465,6 +467,77 @@ namespace Tilde.Translation
             var result = await JsonSerializer.DeserializeAsync<Models.Engine.EngineList>(json, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             return result!.Engines;
+        }
+
+        /// <summary>
+        /// Get available language directions
+        /// </summary>
+        /// <param name="sourceLanguageCode"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<LanguageDirection> GetLanguageDirections(
+            string? sourceLanguageCode = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default
+        )
+        {
+            var engines = await GetEnginesAsync(cancellationToken);
+
+            foreach (var engine in engines)
+            {
+                if (engine.Domains != null && engine.Domains.Count > 0)
+                {
+                    foreach (var domain in engine.Domains)
+                    {
+                        foreach (var sourceLanguage in domain.Value.Languages)
+                        {
+                            // Filter by source language
+                            if (sourceLanguageCode != null && sourceLanguage.Key != sourceLanguageCode)
+                            {
+                                continue;
+                            }
+
+                            foreach (var targetLanguage in sourceLanguage.Value)
+                            {
+                                yield return new LanguageDirection()
+                                {
+                                    Domain = engine.Domain,
+                                    EngineVendor = engine.EngineVendor,
+                                    EngineId = engine.Id,
+                                    EngineName = engine.Name,
+                                    SupportsTermCollections = engine.SupportsTermCollections,
+                                    SourceLanguage = sourceLanguage.Key,
+                                    TargetLanguage = targetLanguage
+                                };
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var sourceLanguage in engine.SourceLanguages)
+                    {
+                        // Filter by source language
+                        if (sourceLanguageCode != null && sourceLanguage != sourceLanguageCode)
+                        {
+                            continue;
+                        }
+
+                        foreach (var targetLanguage in engine.TargetLanguages)
+                        {
+                            yield return new LanguageDirection()
+                            {
+                                Domain = engine.Domain,
+                                EngineVendor = engine.EngineVendor,
+                                EngineId = engine.Id,
+                                EngineName = engine.Name,
+                                SupportsTermCollections = engine.SupportsTermCollections,
+                                SourceLanguage = sourceLanguage,
+                                TargetLanguage = targetLanguage
+                            };
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
