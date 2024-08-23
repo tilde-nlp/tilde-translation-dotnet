@@ -87,6 +87,23 @@ Console.WriteLine(engines.First().SourceLanguages.First()); // "en"
 Console.WriteLine(engines.First().TargetLanguages.First()); // "lv"
 ```
 
+### Get available language directions
+
+This is similar to available engines, but engines are grouped by source language, target language and domain
+
+```c#
+await foreach (var languageDirection in translator.GetLanguageDirections())
+{
+    var srcLang = languageDirection.SourceLanguage;
+    var trgLang = languageDirection.TargetLanguage;
+    var domain = languageDirection.Domain;
+    var engineId = languageDirection.EngineId;
+    var engineName = languageDirection.EngineName;
+
+    Console.WriteLine($"{srcLang} -> {trgLang} [{domain}] | {engineId} ({engineName})");
+}
+```
+
 ## Error handling
 
 All errors are derived from `TildeException` base exception. To catch errors use `TildeException` or derived specific exceptions.
