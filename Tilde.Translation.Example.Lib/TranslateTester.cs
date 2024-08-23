@@ -21,7 +21,8 @@ namespace Tilde.Translation.Example.Lib
                 AppInfo = new AppInfo()
                 {
                     AppName = "my-app",
-                    AppVersion = "1.0.0"
+                    AppVersion = "1.0.0",
+                    AppId = "Tilde|test"
                 },
                 ServerUrl = serverUrl
             };
@@ -31,6 +32,7 @@ namespace Tilde.Translation.Example.Lib
 
         public async Task TranslateTextAsync()
         {
+            Console.WriteLine("Translating text");
             try
             {
                 var translation = await translator.TranslateTextAsync("First sentence", "en", "lv");
@@ -43,10 +45,14 @@ namespace Tilde.Translation.Example.Lib
             {
                 Console.WriteLine(ex.Message);
             }
+
+            Console.WriteLine("Text translation completed");
         }
 
         public async Task TranslateDocumentAsync(string sourceDocumentPath, string targetDocumentPath)
         {
+            Console.WriteLine("Translating document");
+
             // Specify file to translate 
             var sourceDocument = new FileInfo(sourceDocumentPath);
 
@@ -63,6 +69,8 @@ namespace Tilde.Translation.Example.Lib
             var fileStream = File.Create(targetDocumentPath);
             await translator.TranslateDocumentResultAsync(documentHandle, fileStream);
             fileStream.Close();
+
+            Console.WriteLine("Document translation completed");
         }
 
         public async Task GetEnginesAsync()
@@ -71,6 +79,14 @@ namespace Tilde.Translation.Example.Lib
 
             Console.WriteLine(engines.First().SourceLanguages.First()); // "en"
             Console.WriteLine(engines.First().TargetLanguages.First()); // "lv"
+        }
+
+        public async Task GetLanguageDirectionsAsync()
+        {
+            await foreach (var languageDirection in translator.GetLanguageDirections())
+            {
+                Console.WriteLine($"{languageDirection.SourceLanguage} -> {languageDirection.TargetLanguage} | {languageDirection.EngineId} ({languageDirection.EngineName})");
+            }
         }
     }
 }

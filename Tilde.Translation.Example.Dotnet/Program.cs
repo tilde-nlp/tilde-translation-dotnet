@@ -7,4 +7,4 @@ var tester = new Tilde.Translation.Example.Lib.TranslateTester(apiKey);
 
 await tester.TranslateTextAsync();
 await tester.TranslateDocumentAsync("./Document/ExampleDocument.txt", "./Document/ExampleDocumentResult.txt");
-await tester.GetEnginesAsync();
+await tester.GetEnginesAsync();await tester.GetLanguageDirectionsAsync();
