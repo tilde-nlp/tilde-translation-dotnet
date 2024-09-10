@@ -13,6 +13,16 @@ namespace Tilde.Translation.Enums.Engine
     public enum EngineStatus
     {
         /// <summary>
+        /// Import in progress
+        /// </summary>
+        Importing,
+
+        /// <summary>
+        /// Removing engine
+        /// </summary>
+        Deleting,
+
+        /// <summary>
         /// Engine is in error state
         /// </summary>
         Error,
