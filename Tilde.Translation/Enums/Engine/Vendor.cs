@@ -30,6 +30,11 @@ namespace Tilde.Translation.Enums.Engine
         /// <summary>
         /// Google https://translate.google.com/
         /// </summary>
-        Google
+        Google,
+
+        /// <summary>
+        /// Microsoft 
+        /// </summary>
+        Microsoft = 4
     }
 }
