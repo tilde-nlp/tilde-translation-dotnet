@@ -62,6 +62,11 @@ namespace Tilde.Translation.Enums.Engine
         /// <summary>
         /// Microsoft
         /// </summary>
-        Microsoft = 4
+        Microsoft,
+
+        /// <summary>
+        /// Open AI
+        /// </summary>
+        OpenAi
     }
 }
