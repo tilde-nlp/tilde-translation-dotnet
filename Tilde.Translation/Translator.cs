@@ -55,6 +55,7 @@ namespace Tilde.Translation
         /// <summary>
         /// Initializes <see cref="Translator"/> client with Json Web token authentication
         /// </summary>
+        /// <param name="getToken">Function to get Bearer token to use for requests</param>
         /// <param name="options"></param>
         /// <exception cref="ArgumentNullException">apiKey was not provided</exception>
         /// <exception cref="ArgumentException">apiKey is not valid</exception>
