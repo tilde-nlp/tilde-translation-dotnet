@@ -28,16 +28,42 @@ namespace Tilde.Translation
         /// <summary>
         /// API client for making all API requests
         /// </summary>
-        private readonly ApiClient _client;
+        private ApiClient _client;
 
         /// <summary>
-        /// Initializes <see cref="Translator"/> client
+        /// Initializes <see cref="Translator"/> client with ApiKey authentication
         /// </summary>
         /// <param name="apiKey"></param>
         /// <param name="options"></param>
         /// <exception cref="ArgumentNullException">apiKey was not provided</exception>
         /// <exception cref="ArgumentException">apiKey is not valid</exception>
         public Translator(string apiKey, TranslatorOptions? options = null)
+        {
+            if (apiKey == null)
+            {
+                throw new ArgumentNullException(nameof(apiKey));
+            }
+
+            if (!Guid.TryParse(apiKey, out var parsedApiKey))
+            {
+                throw new ArgumentException($"{nameof(apiKey)} is not valid API key");
+            }
+
+            Initialize(new AuthenticationProvider(apiKey), options);
+        }
+
+        /// <summary>
+        /// Initializes <see cref="Translator"/> client with Json Web token authentication
+        /// </summary>
+        /// <param name="options"></param>
+        /// <exception cref="ArgumentNullException">apiKey was not provided</exception>
+        /// <exception cref="ArgumentException">apiKey is not valid</exception>
+        public Translator(Func<string> getToken, TranslatorOptions? options = null)
+        {
+            Initialize(new AuthenticationProvider(getToken), options);
+        }
+
+        private void Initialize(AuthenticationProvider authentication, TranslatorOptions? options = null)
         {
             options ??= new TranslatorOptions();
 
@@ -54,26 +80,11 @@ namespace Tilde.Translation
                 }
             }
 
-            if (apiKey == null)
-            {
-                throw new ArgumentNullException(nameof(apiKey));
-            }
-
-            if (!Guid.TryParse(apiKey, out var parsedApiKey))
-            {
-                throw new ArgumentException($"{nameof(apiKey)} is not valid API key");
-            }
-
             var headers = new Dictionary<string, string?>(options.Headers, StringComparer.OrdinalIgnoreCase);
 
             if (!headers.ContainsKey("User-Agent"))
             {
                 headers.Add("User-Agent", ConstructUserAgentString(options.AppInfo, options.SendPlatformInfo));
-            }
-
-            if (!headers.ContainsKey("Authorization"))
-            {
-                headers.Add("X-API-KEY", $"{parsedApiKey}");
             }
 
             if (!headers.ContainsKey("X-APP-ID") && options.AppInfo?.AppId != null)
@@ -86,7 +97,7 @@ namespace Tilde.Translation
                 headers.Add("Origin", options.AppInfo?.Origin);
             }
 
-            _client = new ApiClient(new Uri(options.ServerUrl), options.ClientFactory, headers);
+            _client = new ApiClient(new Uri(options.ServerUrl), options.ClientFactory, headers, authentication);
         }
 
         /// <summary>
