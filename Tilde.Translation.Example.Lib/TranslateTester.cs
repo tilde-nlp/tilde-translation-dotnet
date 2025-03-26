@@ -13,20 +13,25 @@ namespace Tilde.Translation.Example.Lib
     public class TranslateTester
     {
         private readonly Translator translator;
+        private readonly TranslatorOptions options = new TranslatorOptions()
+        {
+            AppInfo = new AppInfo()
+            {
+                AppName = "my-app",
+                AppVersion = "1.0.0",
+                AppId = "Tilde|test"
+            }
+        };
+
+        public TranslateTester(Func<string> getToken, string serverUrl = "https://translate.tilde.ai")
+        {
+            options.ServerUrl = serverUrl;
+            translator = new Translator(getToken, options);
+        }
 
         public TranslateTester(string apiKey, string serverUrl = "https://translate.tilde.ai")
         {
-            var options = new TranslatorOptions()
-            {
-                AppInfo = new AppInfo()
-                {
-                    AppName = "my-app",
-                    AppVersion = "1.0.0",
-                    AppId = "Tilde|test"
-                },
-                ServerUrl = serverUrl
-            };
-
+            options.ServerUrl = serverUrl;
             translator = new Translator(apiKey, options);
         }
 
@@ -44,6 +49,7 @@ namespace Tilde.Translation.Example.Lib
             catch (TildeException ex)
             {
                 Console.WriteLine(ex.Message);
+                throw;
             }
 
             Console.WriteLine("Text translation completed");

@@ -7,14 +7,17 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Tilde.Translation.Exceptions;
-
 namespace Tilde.Translation.Internal
 {
     internal class ApiClient : IDisposable
     {
+        private readonly List<string> authenticationHeaders = ["authorization", "x-api-key"];
+
+        private readonly AuthenticationProvider _authenticationProvider;
+
         private const HttpStatusCode HttpStatusCodeTooManyRequests = (HttpStatusCode)429;
 
-        private readonly KeyValuePair<string, string?>[] _headers;
+        private readonly IEnumerable<KeyValuePair<string, string?>> _headers;
 
         private readonly HttpClient _httpClient;
 
@@ -23,12 +26,13 @@ namespace Tilde.Translation.Internal
         internal ApiClient(
               Uri serverUrl,
               IHttpClientFactory httpClientFactory,
-              IEnumerable<KeyValuePair<string, string?>> headers
+              IEnumerable<KeyValuePair<string, string?>> headers,
+              AuthenticationProvider authentication
         )
         {
             _serverUrl = serverUrl;
-            _headers = headers.ToArray();
-
+            _headers = headers.Where(item => !authenticationHeaders.Contains(item.Key.Trim().ToLower()));
+            _authenticationProvider = authentication;
             _httpClient = httpClientFactory.CreateClient();
         }
 
@@ -91,8 +95,11 @@ namespace Tilde.Translation.Internal
                 {
                     requestMessage.Headers.Add(header.Key, header.Value);
                 }
+                var authentication = _authenticationProvider.GetAuthenticationHeader();
+                requestMessage.Headers.Add(authentication.Key, authentication.Value);
+                var response = await _httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
 
-                return await _httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+                return response;
                 // Distinguish cancellation due to user-provided token or request time-out
             }
             catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
