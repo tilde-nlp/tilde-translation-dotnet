@@ -57,8 +57,6 @@ namespace Tilde.Translation
         /// </summary>
         /// <param name="getToken">Function to get Bearer token to use for requests</param>
         /// <param name="options"></param>
-        /// <exception cref="ArgumentNullException">apiKey was not provided</exception>
-        /// <exception cref="ArgumentException">apiKey is not valid</exception>
         public Translator(Func<string> getToken, TranslatorOptions? options = null)
         {
             Initialize(new AuthenticationProvider(getToken), options);
