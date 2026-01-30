@@ -67,6 +67,11 @@ namespace Tilde.Translation.Enums.Engine
         /// <summary>
         /// Open AI
         /// </summary>
-        OpenAi
+        OpenAi,
+
+        /// <summary>
+        /// TildeOpen
+        /// </summary>
+        TildeOpen
     }
 }
